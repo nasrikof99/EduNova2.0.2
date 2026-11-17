@@ -1,0 +1,6 @@
+{
+  "appId": "com.edunova.campusplanner",
+  "appName": "EduNova",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

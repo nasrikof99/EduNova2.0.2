@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#4F46E5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>EduNova: Your Campus Planner & NovAi</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-light: #EEF2FF;
+      --accent: #06B6D4;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --success: #10B981;
+      --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    }
+
+    body.dark {
+      --primary: #818CF8;
+      --primary-light: rgba(129, 140, 248, 0.15);
+      --accent: #22D3EE;
+      --bg: #0F172A;
+      --surface: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #334155;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 0.25s, color 0.25s;
+      padding-bottom: 84px;
+      padding-top: env(safe-area-inset-top);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--surface);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-title h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.3px;
+    }
+
+    .header-title .subtitle {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 1px;
+    }
+
+    .header-title p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .theme-btn {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Container */
+    .container {
+      padding: 16px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #4F46E5, #6366F1);
+      color: #FFFFFF;
+      border: none;
+    }
+
+    .hero-card .badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .hero-card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .hero-card p {
+      font-size: 0.85rem;
+      opacity: 0.92;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-box .num {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .stat-box .lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 18px 0 10px;
+    }
+
+    .section-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    /* Day Tabs */
+    .day-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .day-tabs::-webkit-scrollbar { display: none; }
+
+    .day-tab {
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .day-tab.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    /* Class Item */
+    .class-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 5px solid var(--primary);
+    }
+
+    .class-info h4 {
+      font-size: 0.98rem;
+      margin-bottom: 4px;
+    }
+
+    .class-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .lecturer-note {
+      font-size: 0.78rem;
+      color: var(--primary);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Task Item */
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .task-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    .task-check.done {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-content h4 {
+      font-size: 0.95rem;
+      margin-bottom: 3px;
+    }
+
+    .task-content.done h4 {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .priority-tag {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .p-Tinggi { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .p-Sederhana { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .p-Rendah { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+
+    .del-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 6px;
+    }
+
+    /* NovAi Character Banner & Chat Styles */
+    .novai-banner {
+      background: linear-gradient(135deg, #312E81, #4F46E5, #0891B2);
+      color: #FFFFFF;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.25);
+    }
+
+    .novai-avatar {
+      width: 68px;
+      height: 68px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: floatBot 3s ease-in-out infinite;
+    }
+
+    @keyframes floatBot {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .novai-intro h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .novai-badge {
+      background: #22D3EE;
+      color: #0F172A;
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    .novai-intro p {
+      font-size: 0.8rem;
+      opacity: 0.92;
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 14px;
+      max-height: 46vh;
+      overflow-y: auto;
+      padding: 4px 2px;
+    }
+
+    .msg {
+      max-width: 86%;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      word-wrap: break-word;
+    }
+
+    .msg.bot {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .msg.user {
+      background: var(--primary);
+      color: #FFFFFF;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg img.chat-img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .ai-tools-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tool-chip {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .tool-chip.recording {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+      animation: pulseRec 1.2s infinite;
+    }
+
+    @keyframes pulseRec {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    .image-preview-wrap {
+      position: relative;
+      display: none;
+      margin-bottom: 10px;
+      background: var(--surface);
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .image-preview-wrap img {
+      max-height: 130px;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .remove-img-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .ai-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ai-input-row input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .send-ai-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Floating Action Button */
+    .fab {
+      position: fixed;
+      bottom: 84px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      font-size: 1.7rem;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+
+    /* Bottom Navigation */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      z-index: 25;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 24px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background: var(--surface);
+      width: 100%;
+      max-width: 600px;
+      border-radius: 24px 24px 0 0;
+      padding: 20px;
+      animation: slideUp 0.25s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .modal-tab {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .modal-tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 16px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <h1>EduNova</h1>
+      <span class="subtitle">Your Campus Planner</span>
+      <p id="currentDateText">Selamat Belajar!</p>
+    </div>
+    <button class="theme-btn" id="themeToggle" title="Tukar Tema">🌙</button>
+  </header>
+
+  <div class="container">
+    <!-- SKRIN 1: UTAMA (DASHBOARD) -->
+    <section id="screen-home" class="screen active">
+      <div class="card hero-card">
+        <span class="badge">📚 EduNova • Status Hari Ini</span>
+        <h2 id="heroSummary">Memuatkan jadual...</h2>
+        <p id="heroSubtext">Semak kelas dan tugasan terdekat anda.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="num" id="statTotalClasses">0</div>
+          <div class="lbl">Jumlah Kelas</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statPendingTasks">0</div>
+          <div class="lbl">Belum Siap</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statDoneTasks">0</div>
+          <div class="lbl">Selesai</div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h3>🕒 Kelas Hari Ini</h3>
+      </div>
+      <div id="homeTodayClasses"></div>
+
+      <div class="section-header">
+        <h3>🔥 Tugasan Terdekat</h3>
+      </div>
+      <div id="homeUrgentTasks"></div>
+    </section>
+
+    <!-- SKRIN 2: JADUAL WAKTU -->
+    <section id="screen-schedule" class="screen">
+      <div class="day-tabs" id="dayTabs">
+        <button class="day-tab active" data-day="Isnin">Isnin</button>
+        <button class="day-tab" data-day="Selasa">Selasa</button>
+        <button class="day-tab" data-day="Rabu">Rabu</button>
+        <button class="day-tab" data-day="Khamis">Khamis</button>
+        <button class="day-tab" data-day="Jumaat">Jumaat</button>
+        <button class="day-tab" data-day="Sabtu">Sabtu</button>
+      </div>
+      <div id="scheduleList"></div>
+    </section>
+
+    <!-- SKRIN 3: TUGASAN -->
+    <section id="screen-tasks" class="screen">
+      <div class="day-tabs" id="taskFilterTabs">
+        <button class="day-tab active" data-filter="all">Semua</button>
+        <button class="day-tab" data-filter="pending">Belum Siap</button>
+        <button class="day-tab" data-filter="done">Selesai</button>
+      </div>
+      <div id="taskList"></div>
+    </section>
+
+    <!-- SKRIN 4: NOVAI (SELF LEARNING AI ASSISTANT) -->
+    <section id="screen-novai" class="screen">
+      <div class="novai-banner">
+        <div class="novai-avatar">
+          <!-- Karakter Maskot NovAi (Cute Owl-Bot Scholar SVG) -->
+          <svg viewBox="0 0 120 120" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
+            <!-- Topi Graduasi / Mortarboard -->
+            <polygon points="60,10 105,28 60,44 15,28" fill="#1E1B4B" stroke="#38BDF8" stroke-width="2.5"/>
+            <rect x="42" y="34" width="36" height="10" rx="4" fill="#312E81"/>
+            <line x1="95" y1="31" x2="102" y2="48" stroke="#FACC15" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="102" cy="50" r="3.5" fill="#FACC15"/>
+            <!-- Antena AI -->
+            <line x1="60" y1="10" x2="60" y2="3" stroke="#22D3EE" stroke-width="3"/>
+            <circle cx="60" cy="3" r="3" fill="#22D3EE"/>
+            <!-- Kepala Robot Burung Hantu -->
+            <rect x="24" y="42" width="72" height="58" rx="26" fill="#FFFFFF" stroke="#38BDF8" stroke-width="3"/>
+            <!-- Telinga Sisi -->
+            <rect x="16" y="60" width="8" height="22" rx="4" fill="#38BDF8"/>
+            <rect x="96" y="60" width="8" height="22" rx="4" fill="#38BDF8"/>
+            <!-- Skrin Muka Gelap -->
+            <rect x="32" y="52" width="56" height="36" rx="16" fill="#0F172A"/>
+            <!-- Mata Bercahaya -->
+            <circle cx="46" cy="68" r="7" fill="#22D3EE"/>
+            <circle cx="48" cy="66" r="2.5" fill="#FFFFFF"/>
+            <circle cx="74" cy="68" r="7" fill="#22D3EE"/>
+            <circle cx="76" cy="66" r="2.5" fill="#FFFFFF"/>
+            <!-- Paruh / Senyuman Comel -->
+            <polygon points="56,75 64,75 60,81" fill="#FACC15"/>
+            <!-- Badan / Kolar -->
+            <path d="M40,100 Q60,114 80,100" fill="none" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="novai-intro">
+          <h2>NovAi <span class="novai-badge">AI TUTOR</span></h2>
+          <p>Pembantu pembelajaran kendiri anda! Tangkap gambar soalan atau tanya guna suara.</p>
+        </div>
+      </div>
+
+      <!-- Paparan Sembang NovAi -->
+      <div class="chat-box" id="novaiChatBox">
+        <div class="msg bot">
+          Hai! Saya <strong>NovAi</strong> 🦉✨<br/>
+          Ada soalan kuliah atau latihan yang susah? Anda boleh:<br/>
+          1. 📷 <strong>Ambil gambar soalan</strong> (Matematik, Sains, Kod, Esei)<br/>
+          2. 🎙️ <strong>Guna suara ke teks</strong> untuk bertanya terus<br/>
+          3. ⌨️ Taip soalan anda di bawah!
+        </div>
+      </div>
+
+      <!-- Pratonton Gambar Soalan -->
+      <div class="image-preview-wrap" id="imgPreviewWrap">
+        <img id="questionImgPreview" src="" alt="Pratonton Soalan" />
+        <button class="remove-img-btn" id="removeImgBtn" title="Buang Gambar">✕</button>
+      </div>
+
+      <!-- Butang Kamera & Suara -->
+      <div class="ai-tools-bar">
+        <button class="tool-chip" id="btnCamera">
+          <span>📷</span> Ambil Gambar
+        </button>
+        <button class="tool-chip" id="btnGallery">
+          <span>🖼️</span> Galeri
+        </button>
+        <button class="tool-chip" id="btnVoice">
+          <span>🎙️</span> Suara
+        </button>
+      </div>
+
+      <!-- Input Tersembunyi Kamera & Galeri -->
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" />
+      <input type="file" id="galleryInput" accept="image/*" style="display:none;" />
+
+      <!-- Kotak Teks Tanya NovAi -->
+      <div class="ai-input-row">
+        <input type="text" id="novaiTextInput" placeholder="Tanya NovAi atau terangkan gambar..." />
+        <button class="send-ai-btn" id="sendNovaiBtn" title="Hantar">➤</button>
+      </div>
+    </section>
+
+    <!-- SKRIN 5: PROFIL & TETAPAN -->
+    <section id="screen-profile" class="screen">
+      <div class="card">
+        <h3 style="margin-bottom: 12px;">🎓 Maklumat Pelajar</h3>
+        <div class="form-group">
+          <label>Nama Pelajar</label>
+          <input type="text" id="studentNameInput" placeholder="Contoh: Ahmad Danial" />
+        </div>
+        <div class="form-group">
+          <label>Kursus / Fakulti</label>
+          <input type="text" id="studentCourseInput" placeholder="Contoh: Diploma Sains Komputer" />
+        </div>
+        <div class="form-group">
+          <label>Semester Semasa</label>
+          <input type="text" id="studentSemInput" placeholder="Contoh: Semester 3 (2026/2027)" />
+        </div>
+        <button class="btn-primary" id="saveProfileBtn">Simpan Profil</button>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 8px;">🤖 Tetapan Enjin NovAi (Gemini AI)</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+          Masukkan <strong>Gemini API Key</strong> percuma anda (dari Google AI Studio) untuk jawapan pintar sebenar bagi gambar soalan dan suara. Jika dibiarkan kosong, NovAi akan berjalan dalam mod tunjuk ajar pintar asas.
+        </p>
+        <div class="form-group">
+          <label>Gemini API Key (Pilihan)</label>
+          <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..." />
+        </div>
+        <button class="btn-primary" id="saveApiKeyBtn" style="background: #0891B2;">Simpan Kunci API NovAi</button>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 8px;">📱 Tentang EduNova</h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
+          <strong>EduNova: Your Campus Planner + NovAi (Full Version v2.0)</strong><br/>
+          Semua jadual dan tugasan disimpan terus dalam peranti anda secara luar talian (offline).
+        </p>
+        <button class="btn-primary" style="background: var(--danger);" id="resetDataBtn">Set Semula Data Contoh</button>
+      </div>
+    </section>
+  </div>
+
+  <button class="fab" id="openModalBtn">+</button>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-target="screen-home">
+      <span class="nav-icon">🏠</span>
+      <span>Utama</span>
+    </button>
+    <button class="nav-item" data-target="screen-schedule">
+      <span class="nav-icon">📅</span>
+      <span>Jadual</span>
+    </button>
+    <button class="nav-item" data-target="screen-novai">
+      <span class="nav-icon">
+        <!-- Mini Ikon NovAi pada Tab -->
+        <svg viewBox="0 0 120 120" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="60,10 105,28 60,44 15,28" fill="#4F46E5" stroke="#22D3EE" stroke-width="4"/>
+          <rect x="24" y="42" width="72" height="58" rx="26" fill="#4F46E5"/>
+          <rect x="32" y="52" width="56" height="36" rx="16" fill="#0F172A"/>
+          <circle cx="46" cy="68" r="7" fill="#22D3EE"/>
+          <circle cx="74" cy="68" r="7" fill="#22D3EE"/>
+          <polygon points="56,75 64,75 60,81" fill="#FACC15"/>
+        </svg>
+      </span>
+      <span>NovAi</span>
+    </button>
+    <button class="nav-item" data-target="screen-tasks">
+      <span class="nav-icon">📝</span>
+      <span>Tugasan</span>
+    </button>
+    <button class="nav-item" data-target="screen-profile">
+      <span class="nav-icon">👤</span>
+      <span>Profil</span>
+    </button>
+  </nav>
+
+  <!-- MODAL TAMBAH ITEM -->
+  <div class="modal-backdrop" id="addModal">
+    <div class="modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3>Tambah Baru ke EduNova</h3>
+        <button id="closeModalBtn" style="background:none; border:none; font-size:1.3rem; color:var(--text-muted); cursor:pointer;">✕</button>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tabAddClass">Jadual Kelas</button>
+        <button class="modal-tab" id="tabAddTask">Tugasan / Exam</button>
+      </div>
+
+      <!-- Borang Kelas -->
+      <form id="formClass">
+        <div class="form-group">
+          <label>Nama Subjek</label>
+          <input type="text" id="clsSubject" required placeholder="cth: Matematik Kejuruteraan" />
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div class="form-group" style="flex:1;">
+            <label>Kod Subjek</label>
+            <input type="text" id="clsCode" required placeholder="cth: MAT201" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Hari</label>
+            <select id="clsDay">
+              <option value="Isnin">Isnin</option>
+              <option value="Selasa">Selasa</option>
+              <option value="Rabu">Rabu</option>
+              <option value="Khamis">Khamis</option>
+              <option value="Jumaat">Jumaat</option>
+              <option value="Sabtu">Sabtu</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div class="form-group" style="flex:1;">
+            <label>Masa Mula</label>
+            <input type="time" id="clsStart" value="08:00" required />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Masa Tamat</label>
+            <input type="time" id="clsEnd" value="10:00" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Lokasi / Bilik Kuliah</label>
+          <input type="text" id="clsLocation" required placeholder="cth: Dewan Kuliah 2" />
+        </div>
+        <div class="form-group">
+          <label>Nama Pensyarah (Pilihan)</label>
+          <input type="text" id="clsLecturer" placeholder="cth: Dr. Siti Aminah" />
+        </div>
+        <button type="submit" class="btn-primary">Simpan Jadual Kelas</button>
+      </form>
+
+      <!-- Borang Tugasan -->
+      <form id="formTask" style="display:none;">
+        <div class="form-group">
+          <label>Tajuk Tugasan / Peperiksaan</label>
+          <input type="text" id="tskTitle" required placeholder="cth: Laporan Amali Makmal 2" />
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div class="form-group" style="flex:1;">
+            <label>Kod Subjek</label>
+            <input type="text" id="tskCode" required placeholder="cth: CSC102" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Keutamaan</label>
+            <select id="tskPriority">
+              <option value="Tinggi">Tinggi</option>
+              <option value="Sederhana" selected>Sederhana</option>
+              <option value="Rendah">Rendah</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tarikh Akhir (Deadline)</label>
+          <input type="date" id="tskDue" required />
+        </div>
+        <button type="submit" class="btn-primary">Simpan Tugasan</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const defaultClasses = [
+      { id: 1, subjectName: "Pengaturcaraan Mudah Alih", subjectCode: "CSC304", dayOfWeek: "Isnin", startTime: "08:00", endTime: "10:00", location: "Makmal Komputer 2", lecturer: "Dr. Haziq", color: "#4F46E5" },
+      { id: 2, subjectName: "Matematik Diskrit", subjectCode: "MAT210", dayOfWeek: "Isnin", startTime: "11:00", endTime: "13:00", location: "Dewan Kuliah A", lecturer: "Prof. Madya Noraini", color: "#10B981" },
+      { id: 3, subjectName: "Sistem Pangkalan Data", subjectCode: "CSC205", dayOfWeek: "Selasa", startTime: "09:00", endTime: "11:00", location: "Bilik Kuliah 4", lecturer: "En. Faizal", color: "#F59E0B" },
+      { id: 4, subjectName: "Komunikasi Profesional", subjectCode: "ENG102", dayOfWeek: "Rabu", startTime: "14:00", endTime: "16:00", location: "Blok C, Bilik 12", lecturer: "Pn. Sarah", color: "#EC4899" }
+    ];
+
+    const defaultTasks = [
+      { id: 101, title: "Prototaip Aplikasi Android", subjectCode: "CSC304", dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], priority: "Tinggi", done: false },
+      { id: 102, title: "Latihan Tutorial Bab 4", subjectCode: "MAT210", dueDate: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0], priority: "Sederhana", done: false },
+      { id: 103, title: "Reka Bentuk ERD Sistem Perpustakaan", subjectCode: "CSC205", dueDate: new Date(Date.now() - 86400000).toISOString().split('T')[0], priority: "Rendah", done: true }
+    ];
+
+    let classes = JSON.parse(localStorage.getItem('edunova_classes')) || defaultClasses;
+    let tasks = JSON.parse(localStorage.getItem('edunova_tasks')) || defaultTasks;
+    let profile = JSON.parse(localStorage.getItem('edunova_profile')) || { name: "Mahasiswa", course: "Pengajian Diploma / Ijazah", sem: "Semester Semasa" };
+    let geminiApiKey = localStorage.getItem('edunova_gemini_key') || "";
+    let selectedDay = "Isnin";
+    let taskFilter = "all";
+
+    const colors = ["#4F46E5", "#10B981", "#F59E0B", "#EC4899", "#06B6D4", "#8B5CF6"];
+
+    function saveData() {
+      localStorage.setItem('edunova_classes', JSON.stringify(classes));
+      localStorage.setItem('edunova_tasks', JSON.stringify(tasks));
+      localStorage.setItem('edunova_profile', JSON.stringify(profile));
+      renderAll();
+    }
+
+    // Theme handling
+    const themeToggle = document.getElementById('themeToggle');
+    if (localStorage.getItem('edunova_theme') === 'dark') {
+      document.body.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    }
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      themeToggle.textContent = isDark ? '☀️' : '🌙';
+      localStorage.setItem('edunova_theme', isDark ? 'dark' : 'light');
+    });
+
+    // Navigation & FAB visibility
+    const fabBtn = document.getElementById('openModalBtn');
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.dataset.target;
+        document.getElementById(target).classList.add('active');
+        // Hide FAB on NovAi screen so it doesn't block chat input
+        fabBtn.style.display = (target === 'screen-novai') ? 'none' : 'flex';
+      });
+    });
+
+    // Day Tabs
+    document.querySelectorAll('#dayTabs .day-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#dayTabs .day-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        selectedDay = tab.dataset.day;
+        renderSchedule();
+      });
+    });
+
+    // Task Filter Tabs
+    document.querySelectorAll('#taskFilterTabs .day-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#taskFilterTabs .day-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        taskFilter = tab.dataset.filter;
+        renderTasks();
+      });
+    });
+
+    // Render Functions
+    function renderHome() {
+      const daysMap = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"];
+      const todayName = daysMap[new Date().getDay()];
+      const displayDay = todayName === "Ahad" ? "Isnin" : todayName;
+
+      document.getElementById('currentDateText').textContent = `Hai, ${profile.name} • ${todayName}`;
+
+      const todayClasses = classes.filter(c => c.dayOfWeek === displayDay).sort((a,b) => a.startTime.localeCompare(b.startTime));
+      const pendingTasks = tasks.filter(t => !t.done).sort((a,b) => a.dueDate.localeCompare(b.dueDate));
+      const doneTasks = tasks.filter(t => t.done);
+
+      document.getElementById('statTotalClasses').textContent = classes.length;
+      document.getElementById('statPendingTasks').textContent = pendingTasks.length;
+      document.getElementById('statDoneTasks').textContent = doneTasks.length;
+
+      document.getElementById('heroSummary').textContent = `${todayClasses.length} Kelas & ${pendingTasks.length} Tugasan Aktif`;
+      document.getElementById('heroSubtext').textContent = todayClasses.length > 0
+        ? `Kelas pertama (${displayDay}): ${todayClasses[0].subjectName} jam ${todayClasses[0].startTime}`
+        : `Tiada kelas dijadualkan pada hari ${displayDay}.`;
+
+      const homeClsContainer = document.getElementById('homeTodayClasses');
+      homeClsContainer.innerHTML = todayClasses.length ? todayClasses.map(c => `
+        <div class="card class-item" style="border-left-color: ${c.color}">
+          <div class="class-info">
+            <h4>${c.subjectName} (${c.subjectCode})</h4>
+            <div class="class-meta">
+              <span>⏰ ${c.startTime} - ${c.endTime}</span>
+              <span>📍 ${c.location}</span>
+            </div>
+            ${c.lecturer ? `<div class="lecturer-note">👨‍🏫 ${c.lecturer}</div>` : ''}
+          </div>
+        </div>
+      `).join('') : `<div class="card empty-state">Tiada kelas untuk hari ${displayDay}.</div>`;
+
+      const homeTskContainer = document.getElementById('homeUrgentTasks');
+      homeTskContainer.innerHTML = pendingTasks.slice(0, 3).length ? pendingTasks.slice(0, 3).map(t => `
+        <div class="card task-item">
+          <div class="task-check" onclick="toggleTask(${t.id})"></div>
+          <div class="task-content">
+            <h4>${t.title}</h4>
+            <div class="class-meta">
+              <span>📘 ${t.subjectCode}</span>
+              <span>📅 ${t.dueDate}</span>
+              <span class="priority-tag p-${t.priority}">${t.priority}</span>
+            </div>
+          </div>
+        </div>
+      `).join('') : `<div class="card empty-state">Semua tugasan telah disiapkan! 🎉</div>`;
+    }
+
+    function renderSchedule() {
+      const filtered = classes.filter(c => c.dayOfWeek === selectedDay).sort((a,b) => a.startTime.localeCompare(b.startTime));
+      const container = document.getElementById('scheduleList');
+      container.innerHTML = filtered.length ? filtered.map(c => `
+        <div class="card class-item" style="border-left-color: ${c.color}">
+          <div class="class-info">
+            <h4>${c.subjectName} (${c.subjectCode})</h4>
+            <div class="class-meta">
+              <span>⏰ ${c.startTime} - ${c.endTime}</span>
+              <span>📍 ${c.location}</span>
+            </div>
+            ${c.lecturer ? `<div class="lecturer-note">👨‍🏫 ${c.lecturer}</div>` : ''}
+          </div>
+          <button class="del-btn" onclick="deleteClass(${c.id})" title="Padam">🗑️</button>
+        </div>
+      `).join('') : `<div class="card empty-state">Tiada kelas pada hari ${selectedDay}. Tekan + untuk tambah.</div>`;
+    }
+
+    function renderTasks() {
+      let filtered = tasks;
+      if (taskFilter === 'pending') filtered = tasks.filter(t => !t.done);
+      if (taskFilter === 'done') filtered = tasks.filter(t => t.done);
+      filtered.sort((a,b) => a.dueDate.localeCompare(b.dueDate));
+
+      const container = document.getElementById('taskList');
+      container.innerHTML = filtered.length ? filtered.map(t => `
+        <div class="card task-item">
+          <div class="task-check ${t.done ? 'done' : ''}" onclick="toggleTask(${t.id})">${t.done ? '✓' : ''}</div>
+          <div class="task-content ${t.done ? 'done' : ''}">
+            <h4>${t.title}</h4>
+            <div class="class-meta">
+              <span>📘 ${t.subjectCode}</span>
+              <span>📅 ${t.dueDate}</span>
+              <span class="priority-tag p-${t.priority}">${t.priority}</span>
+            </div>
+          </div>
+          <button class="del-btn" onclick="deleteTask(${t.id})" title="Padam">🗑️</button>
+        </div>
+      `).join('') : `<div class="card empty-state">Tiada tugasan dalam senarai ini.</div>`;
+    }
+
+    function renderProfile() {
+      document.getElementById('studentNameInput').value = profile.name || "";
+      document.getElementById('studentCourseInput').value = profile.course || "";
+      document.getElementById('studentSemInput').value = profile.sem || "";
+      document.getElementById('geminiApiKeyInput').value = geminiApiKey || "";
+    }
+
+    function renderAll() {
+      renderHome();
+      renderSchedule();
+      renderTasks();
+      renderProfile();
+    }
+
+    // Actions
+    window.toggleTask = function(id) {
+      tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+      saveData();
+    };
+
+    window.deleteClass = function(id) {
+      classes = classes.filter(c => c.id !== id);
+      saveData();
+    };
+
+    window.deleteTask = function(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      saveData();
+    };
+
+    // ================= NOVAI SELF-LEARNING LOGIC =================
+    let currentImageBase64 = null;
+    let currentImageMime = "image/jpeg";
+
+    const cameraInput = document.getElementById('cameraInput');
+    const galleryInput = document.getElementById('galleryInput');
+    const imgPreviewWrap = document.getElementById('imgPreviewWrap');
+    const questionImgPreview = document.getElementById('questionImgPreview');
+
+    document.getElementById('btnCamera').addEventListener('click', () => cameraInput.click());
+    document.getElementById('btnGallery').addEventListener('click', () => galleryInput.click());
+
+    function handleImageFile(file) {
+      if (!file) return;
+      currentImageMime = file.type || "image/jpeg";
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        questionImgPreview.src = e.target.result;
+        imgPreviewWrap.style.display = 'block';
+        currentImageBase64 = e.target.result.split(',')[1];
+      };
+      reader.readAsDataURL(file);
+    }
+
+    cameraInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
+    galleryInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
+
+    document.getElementById('removeImgBtn').addEventListener('click', () => {
+      currentImageBase64 = null;
+      questionImgPreview.src = "";
+      imgPreviewWrap.style.display = 'none';
+      cameraInput.value = "";
+      galleryInput.value = "";
+    });
+
+    // Speech-to-Text (Suara ke Teks)
+    const btnVoice = document.getElementById('btnVoice');
+    const novaiTextInput = document.getElementById('novaiTextInput');
+    let recognition = null;
+    let isRecording = false;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'ms-MY';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isRecording = true;
+        btnVoice.classList.add('recording');
+        btnVoice.innerHTML = '<span>🛑</span> Mendengar...';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        novaiTextInput.value = transcript;
+      };
+
+      recognition.onerror = (event) => {
+        alert("Ralat pengecaman suara: " + event.error + ". Sila pastikan kebenaran mikrofon diaktifkan.");
+      };
+
+      recognition.onend = () => {
+        isRecording = false;
+        btnVoice.classList.remove('recording');
+        btnVoice.innerHTML = '<span>🎙️</span> Suara';
+      };
+    }
+
+    btnVoice.addEventListener('click', () => {
+      if (!recognition) {
+        alert("Peranti/pelayar ini tidak menyokong pengecaman suara terus. Sila guna butang mikrofon pada papan kekunci telefon anda.");
+        return;
+      }
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    });
+
+    // Append message to NovAi Chat
+    const chatBox = document.getElementById('novaiChatBox');
+    function appendMessage(sender, htmlContent) {
+      const div = document.createElement('div');
+      div.className = `msg ${sender}`;
+      div.innerHTML = htmlContent;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return div;
+    }
+
+    async function askNovAi() {
+      const text = novaiTextInput.value.trim();
+      if (!text && !currentImageBase64) return;
+
+      let userHtml = "";
+      if (currentImageBase64) {
+        userHtml += `<img class="chat-img" src="data:${currentImageMime};base64,${currentImageBase64}" alt="Soalan" />`;
+      }
+      if (text) {
+        userHtml += `<div>${text}</div>`;
+      } else {
+        userHtml += `<div><em>Sila selesaikan soalan dalam gambar ini.</em></div>`;
+      }
+
+      appendMessage('user', userHtml);
+
+      const promptText = text || "Tolong analisis gambar soalan ini dan berikan langkah penyelesaian serta jawapan yang jelas dalam Bahasa Melayu untuk pelajar belajar sendiri.";
+      const imgData = currentImageBase64;
+      const imgMime = currentImageMime;
+
+      // Reset inputs
+      novaiTextInput.value = "";
+      currentImageBase64 = null;
+      imgPreviewWrap.style.display = 'none';
+      cameraInput.value = "";
+      galleryInput.value = "";
+
+      const loadingBubble = appendMessage('bot', '🦉 <em>NovAi sedang menganalisis soalan anda...</em>');
+
+      // If user configured Gemini API Key, call real Gemini Multimodal API
+      if (geminiApiKey) {
+        try {
+          const parts = [{ text: "Anda ialah NovAi, pembantu tutor pembelajaran kendiri (self-learning) yang mesra, bijak, dan membantu pelajar kolej/sekolah memahami langkah demi langkah dalam Bahasa Melayu. " + promptText }];
+          if (imgData) {
+            parts.push({
+              inline_data: {
+                mime_type: imgMime,
+                data: imgData
+              }
+            });
+          }
+
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts }] })
+          });
+
+          const data = await response.json();
+          if (data.candidates && data.candidates[0].content) {
+            let reply = data.candidates[0].content.parts[0].text;
+            reply = reply.replace(/
+/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            loadingBubble.innerHTML = `<strong>🦉 NovAi:</strong><br/>${reply}`;
+          } else {
+            loadingBubble.innerHTML = `⚠️ Maaf, kunci API tidak sah atau had penggunaan dicapai. Sila semak Gemini API Key di tab <strong>Profil</strong>.`;
+          }
+        } catch (err) {
+          loadingBubble.innerHTML = `⚠️ Tiada sambungan internet untuk menghubungi pelayan NovAi. Sila semak rangkaian anda.`;
+        }
+      } else {
+        // Smart Offline Tutor Guidance Mode when no API key is set yet
+        setTimeout(() => {
+          if (imgData) {
+            loadingBubble.innerHTML = `<strong>🦉 NovAi (Mod Pratonton):</strong><br/>
+              Gambar soalan anda telah berjaya diterima! 📸<br/><br/>
+              <strong>Langkah Pembelajaran Kendiri:</strong><br/>
+              1. Kenal pasti maklumat yang diberi dan kata kunci utama dalam soalan tersebut.<br/>
+              2. Pilih rumus atau konsep berkaitan subjek anda.<br/>
+              3. Semak semula unit dan langkah pengiraan akhir.<br/><br/>
+              <em>💡 Tip: Untuk membolehkan NovAi membaca teks dalam gambar dan memberi jawapan automatik sepenuhnya, masukkan <strong>Gemini API Key</strong> percuma di tab <strong>Profil</strong>!</em>`;
+          } else {
+            loadingBubble.innerHTML = `<strong>🦉 NovAi:</strong><br/>
+              Terima kasih atas soalan: <em>"${promptText}"</em>.<br/><br/>
+              Untuk mendapat huraian jawapan pintar secara masa nyata bagi apa jua subjek, sila masukkan <strong>Gemini API Key</strong> percuma anda di tab <strong>Profil</strong> di bawah.`;
+          }
+        }, 700);
+      }
+    }
+
+    document.getElementById('sendNovaiBtn').addEventListener('click', askNovAi);
+    novaiTextInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') askNovAi();
+    });
+
+    // Modal Controls
+    const addModal = document.getElementById('addModal');
+    document.getElementById('openModalBtn').addEventListener('click', () => {
+      document.getElementById('tskDue').value = new Date().toISOString().split('T')[0];
+      addModal.classList.add('open');
+    });
+    document.getElementById('closeModalBtn').addEventListener('click', () => addModal.classList.remove('open'));
+
+    const tabAddClass = document.getElementById('tabAddClass');
+    const tabAddTask = document.getElementById('tabAddTask');
+    const formClass = document.getElementById('formClass');
+    const formTask = document.getElementById('formTask');
+
+    tabAddClass.addEventListener('click', () => {
+      tabAddClass.classList.add('active');
+      tabAddTask.classList.remove('active');
+      formClass.style.display = 'block';
+      formTask.style.display = 'none';
+    });
+
+    tabAddTask.addEventListener('click', () => {
+      tabAddTask.classList.add('active');
+      tabAddClass.classList.remove('active');
+      formTask.style.display = 'block';
+      formClass.style.display = 'none';
+    });
+
+    formClass.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newCls = {
+        id: Date.now(),
+        subjectName: document.getElementById('clsSubject').value.trim(),
+        subjectCode: document.getElementById('clsCode').value.trim().toUpperCase(),
+        dayOfWeek: document.getElementById('clsDay').value,
+        startTime: document.getElementById('clsStart').value,
+        endTime: document.getElementById('clsEnd').value,
+        location: document.getElementById('clsLocation').value.trim(),
+        lecturer: document.getElementById('clsLecturer').value.trim(),
+        color: colors[classes.length % colors.length]
+      };
+      classes.push(newCls);
+      selectedDay = newCls.dayOfWeek;
+      document.querySelectorAll('#dayTabs .day-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.day === selectedDay);
+      });
+      formClass.reset();
+      addModal.classList.remove('open');
+      saveData();
+    });
+
+    formTask.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newTask = {
+        id: Date.now(),
+        title: document.getElementById('tskTitle').value.trim(),
+        subjectCode: document.getElementById('tskCode').value.trim().toUpperCase(),
+        dueDate: document.getElementById('tskDue').value,
+        priority: document.getElementById('tskPriority').value,
+        done: false
+      };
+      tasks.push(newTask);
+      formTask.reset();
+      addModal.classList.remove('open');
+      saveData();
+    });
+
+    document.getElementById('saveProfileBtn').addEventListener('click', () => {
+      profile.name = document.getElementById('studentNameInput').value.trim() || "Mahasiswa";
+      profile.course = document.getElementById('studentCourseInput').value.trim() || "Pelajar Kolej";
+      profile.sem = document.getElementById('studentSemInput').value.trim() || "Semester Semasa";
+      saveData();
+      alert("Profil EduNova berjaya disimpan!");
+    });
+
+    document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
+      geminiApiKey = document.getElementById('geminiApiKeyInput').value.trim();
+      localStorage.setItem('edunova_gemini_key', geminiApiKey);
+      alert(geminiApiKey ? "Kunci API NovAi berjaya disimpan! NovAi sedia membantu." : "Kunci API dipadam.");
+    });
+
+    document.getElementById('resetDataBtn').addEventListener('click', () => {
+      if (confirm("Set semula semua jadual dan tugasan kepada data contoh asal?")) {
+        classes = [...defaultClasses];
+        tasks = [...defaultTasks];
+        saveData();
+      }
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
