@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -23,21 +23,35 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Capacitor & Generate Android Project
+      - name: Install Capacitor & Add Android Platform
         run: |
           npm install
           npx cap add android
           npx cap sync android
 
-      - name: Add Camera & Microphone Permissions for NovAi
+      - name: Configure Camera & Microphone Permissions Safely
         run: |
-          MANIFEST="android/app/src/main/AndroidManifest.xml"
-          sed -i 's/<uses-permission android:name="android.permission.INTERNET" \/>/<uses-permission android:name="android.permission.INTERNET" \/>
-    <uses-permission android:name="android.permission.CAMERA" \/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO" \/>
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" \/>/' $MANIFEST
+          python3 -c '
+          import xml.etree.ElementTree as ET
+          manifest_path = "android/app/src/main/AndroidManifest.xml"
+          ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
+          tree = ET.parse(manifest_path)
+          root = tree.getroot()
+          ns = "{http://schemas.android.com/apk/res/android}"
+          perms = [
+              "android.permission.CAMERA",
+              "android.permission.RECORD_AUDIO",
+              "android.permission.MODIFY_AUDIO_SETTINGS"
+          ]
+          existing = {elem.attrib.get(ns + "name") for elem in root.findall("uses-permission")}
+          for p in perms:
+              if p not in existing:
+                  el = ET.Element("uses-permission", {ns + "name": p})
+                  root.insert(0, el)
+          tree.write(manifest_path, encoding="utf-8", xml_declaration=True)
+          '
 
-      - name: Generate Release Keystore & Build Signed APK + AAB
+      - name: Build & Sign Release APK + Play Store AAB
         run: |
           cd android
           keytool -genkey -v -keystore app/edunova-release.keystore -alias edunova -keyalg RSA -keysize 2048 -validity 10000 -storepass edunova123 -keypass edunova123 -dname "CN=EduNova, OU=Education, O=EduNovaApp, L=Malaysia, S=Kelantan, C=MY"
