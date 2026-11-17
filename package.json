@@ -1,14 +1,16 @@
 {
   "name": "edunova-novai-planner",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "EduNova: Your Campus Planner with NovAi Self-Learning Assistant",
   "main": "www/index.html",
   "scripts": {
     "sync": "npx cap sync android"
   },
   "dependencies": {
-    "@capacitor/android": "^6.0.0",
-    "@capacitor/cli": "^6.0.0",
-    "@capacitor/core": "^6.0.0"
+    "@capacitor/android": "6.1.2",
+    "@capacitor/core": "6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "6.1.2"
   }
 }
